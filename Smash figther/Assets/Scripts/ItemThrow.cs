@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ItemThrow : MonoBehaviour
@@ -14,7 +15,7 @@ public class ItemThrow : MonoBehaviour
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _rigidbody2D.AddForce(Vector2.right);
         _renderer = GetComponent<SpriteRenderer>();
-
+        
         switch (itemType)
         {
             case ItemGrab.ItemTypeEnum.Fire:
@@ -37,6 +38,14 @@ public class ItemThrow : MonoBehaviour
                 break;
             default:
                 break;
+        }
+    }
+    
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.CompareTag("Ground") || col.gameObject.CompareTag("Player"))
+        {
+           //Destroy(this.gameObject);
         }
     }
 }
