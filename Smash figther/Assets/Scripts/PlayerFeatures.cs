@@ -75,6 +75,29 @@ public class PlayerFeatures : MonoBehaviour
             //GameObject.Destroy(item.gameObject);
         }
     }
+
+    public void DropItem()
+    {
+        if (inventory.Count != 0)
+        {
+            var temp = throwablePrefab.GetComponent<ItemThrow>();
+            temp.itemType = selectedItemType;
+            temp.isDroped = true;
+            var spawnedObject = Instantiate(temp, throwStartPoint, Quaternion.identity);
+        
+            if (inventory.Count > 1)
+            {
+                inventory.Remove(inventory[selectedItemRow]);
+            }
+            else
+            {
+                inventory.Clear();
+            }
+            
+            if (selectedItemRow > 0f)
+                SetSelectedItem(-1);
+        }
+    }
     
     #region Throw
     public void ThrowItem()
