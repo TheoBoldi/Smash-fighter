@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
         {
             _entity.GrabItem();
         }
-        if (_rewiredPlayer.GetButtonDown("Throw") && _entity.canThrowItem)
+        if (_rewiredPlayer.GetButtonUp("Throw") && _entity.canThrowItem)
         {
             _entity.ThrowItem();
         }

@@ -175,9 +175,10 @@ MonoBehaviour:
   isHolding: 0
   holdTime: 0.2
   returnTime: 1000
-  throwForce: 50
+  throwForce: 15
   throwEndPoint: {x: 0, y: 0}
   throwOffset: {x: 1, y: 0.5, z: 0}
+  throwRotation: {x: 0, y: 0}
   throwStartPoint: {x: 0, y: 0}
   throwTrans: {fileID: 3018909418091812580}
 --- !u!114 &6197753838076560038
