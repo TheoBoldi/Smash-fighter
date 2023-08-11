@@ -4,58 +4,85 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Rewired;
+using UnityEditor;
 
 public class PlayerFeatures : MonoBehaviour
 {
-    public GameObject throwablePrefab;
-    public List<ItemGrab.ItemTypeEnum> inventory = new List<ItemGrab.ItemTypeEnum>();
-    public ItemGrab.ItemTypeEnum selectedItemType;
+    [Header("Inventory")]
+    public int inventoryCapacity = 4;
     public int selectedItemRow;
+    private GameObject throwablePrefab;
+    public List<ItemGrab.ItemTypeEnum> inventory = new List<ItemGrab.ItemTypeEnum>();
+    [HideInInspector]
+    public ItemGrab.ItemTypeEnum selectedItemType;
+    [HideInInspector]
     public ItemGrab item;
-    public bool facingRight = true;
-    public bool canGrabItem = false;
-    public bool canThrowItem = false;
-    public bool isHolding = false;
-    public double holdTime;
-
-    public float returnTime;
-    public float throwForce;
-    public Vector2 throwEndPoint;
-    public Vector3 throwOffset;
-    public Vector2 throwRotation;
-    public Vector2 throwStartPoint;
-    public Transform throwTrans;
-    private float _orientX;
     
+    [Header("Throw")]
+    public double holdTime;
+    private float returnTime;
+    public float throwForce;
+    [HideInInspector]
+    public bool canGrabItem = false;
+    [HideInInspector]
+    public bool canThrowItem = false;
+    private bool facingRight = true;
+    private bool isHolding = false;
+    private Vector2 throwEndPoint;
+    public Vector3 throwOffset;
+    private Vector2 throwRotation;
+    private Vector2 throwStartPoint;
+    private Transform throwTrans;
+    private float _orientX;
+
+    private void Start()
+    {
+        returnTime = 1000f;
+        throwTrans = transform.GetChild(1);
+        throwablePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/ItemThrow.prefab");
+    }
+
     private void Update()
     {
-        if (inventory.Count > 0)
+        ThrowUpdate();
+    }
+
+    public int SetSelectedItem(int row)
+    {
+        if (row == 1)
         {
-            canThrowItem = true;
+            if (selectedItemRow < inventoryCapacity - 1 && selectedItemRow < inventory.Count -1)
+            {
+                selectedItemRow += row;
+            }
         }
         else
         {
-            canThrowItem = false;
+            if (selectedItemRow > 0f)
+            {
+                selectedItemRow += row;
+            }
         }
         
-        ThrowUpdate();
+        return selectedItemRow;
     }
     
     public void GrabItem()
     {
-        inventory.Add(item.itemType);
-        //GameObject.Destroy(item.gameObject);
+        if (inventory.Count < inventoryCapacity)
+        {
+            inventory.Add(item.itemType);
+            //GameObject.Destroy(item.gameObject);
+        }
     }
-
+    
     #region Throw
     public void ThrowItem()
     {
-        selectedItemType = inventory.First();
-        selectedItemRow = 0;
+        selectedItemType = inventory[selectedItemRow];
         var temp = throwablePrefab.GetComponent<ItemThrow>();
         temp.itemType = selectedItemType;
         var spawnedObject = Instantiate(temp, throwStartPoint, Quaternion.identity);
-        var rotatedLine = Quaternion.AngleAxis(throwTrans.localEulerAngles.z, transform.up);
         spawnedObject.GetComponent<Rigidbody2D>().AddForce(RotationToVector(throwTrans.localEulerAngles.z +90) * throwForce, ForceMode2D.Impulse);
         
         if (inventory.Count > 1)
@@ -66,6 +93,9 @@ public class PlayerFeatures : MonoBehaviour
         {
             inventory.Clear();
         }
+
+        if (selectedItemRow > 0f)
+            SetSelectedItem(-1);
     }
 
     private void ThrowUpdate()
@@ -79,6 +109,15 @@ public class PlayerFeatures : MonoBehaviour
         throwRotation.x = ReInput.players.GetPlayer(transform.GetComponent<PlayerController>().playerName).GetAxis("MoveXAim");
         throwRotation.y = ReInput.players.GetPlayer(transform.GetComponent<PlayerController>().playerName).GetAxis("MoveYAim");
 
+        if (inventory.Count > 0)
+        {
+            canThrowItem = true;
+        }
+        else
+        {
+            canThrowItem = false;
+        }
+        
         if (isHolding)
         {
             if (throwRotation.x == 0f && throwRotation.y == 0f)
@@ -152,14 +191,14 @@ public class PlayerFeatures : MonoBehaviour
         _orientX = orient;
     }
     #endregion
-    
+
+    #region Guizmo
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
 
         if (!Application.isPlaying)
         {
-            Gizmos.DrawCube(throwTrans.position, new Vector3(0.1f,0.1f,0.1f));
             Gizmos.DrawLine(throwStartPoint, throwEndPoint);
         }
         else
@@ -168,4 +207,5 @@ public class PlayerFeatures : MonoBehaviour
             Gizmos.DrawLine(throwStartPoint, throwEndPoint);
         }
     }
+    #endregion
 }

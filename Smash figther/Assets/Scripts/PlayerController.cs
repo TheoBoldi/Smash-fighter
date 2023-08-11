@@ -35,5 +35,14 @@ public class PlayerController : MonoBehaviour
         {
             _entity.ThrowItem();
         }
+
+        if (_rewiredPlayer.GetButtonDown("Inventory Left"))
+        {
+            _entity.SetSelectedItem(-1);
+        }
+        if (_rewiredPlayer.GetButtonDown("Inventory Right"))
+        {
+            _entity.SetSelectedItem(1);
+        }
     }
 }
